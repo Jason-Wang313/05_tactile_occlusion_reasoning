@@ -4,7 +4,7 @@
 Stage 8: complete; final audit exists and repo pushed.
 
 ## Last Completed Step
-- Created public GitHub repo, committed the complete paper package, and pushed `master`.
+- Created public GitHub repo, committed the complete paper package, pushed `master`, and prepared the final status snapshot.
 
 ## Commands / Actions
 - `apply_patch` added `plan.md`.
@@ -46,6 +46,9 @@ Stage 8: complete; final audit exists and repo pushed.
 - `git add -A`
 - `git commit -m "complete tactile occlusion reasoning paper"`
 - `git push -u origin master`
+- `git add child_status.md`
+- `git commit -m "update final child status"`
+- `git push`
 - Web check confirmed the official ICLR 2026 Author Guide points to `iclr2026.zip`; local `paper/` already contains the ICLR 2026 style files.
 
 ## Current Facts
@@ -57,7 +60,7 @@ Stage 8: complete; final audit exists and repo pushed.
 - `C:/Users/wangz/Downloads/05.pdf` exists and is 193242 bytes.
 - Local build copy `paper/main.pdf` was removed after copying to Downloads.
 - Public GitHub repo URL: `https://github.com/Jason-Wang313/05_tactile_occlusion_reasoning`.
-- Commit pushed: `c7bd46b` on `master`.
+- Publication commit pushed on `master`; status-only follow-up pushed after publication.
 - `docs/final_audit.md` exists and records `pending orchestrator copy` for the visible Desktop PDF.
 
 ## Failures
@@ -69,4 +72,4 @@ Stage 8: complete; final audit exists and repo pushed.
 - Avoiding inline CSV parsing; will write a small helper script for citation/context extraction.
 
 ## Next Step
-- Commit and push this final status-file update.
+- None. Final verification remains to be reported in the assistant response.
