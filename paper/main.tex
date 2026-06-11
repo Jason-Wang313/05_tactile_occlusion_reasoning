@@ -1,0 +1,313 @@
+\documentclass{article}
+
+\usepackage{iclr2026_conference,times}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\title{Tactile Occlusion Reasoning: Contact-Equivalence Classes for Hidden Geometry}
+
+\author{Anonymous Authors}
+
+\newcommand{\Geom}{\mathcal{G}}
+\newcommand{\Obs}{\mathcal{O}}
+\newcommand{\Act}{\mathcal{A}}
+\newcommand{\Touch}{\mathcal{T}}
+\newcommand{\Outcome}{\mathcal{Y}}
+\newcommand{\loss}{\ell}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Robots often manipulate objects whose decisive geometry is hidden from vision:
+the back edge of a handle, the mouth of an insertion channel, the lip of a
+transparent cup, or the pocket that makes a grasp stable. Most visuo-tactile
+methods treat touch as another route to reconstructing the full object, or as
+generic information gain over a dense hidden state. This paper argues for a
+different central representation. For a pending manipulation action, hidden
+geometries should be grouped into contact-equivalence classes: two geometries
+are equivalent when every currently relevant contact would have the same
+outcome. Tactile probes should split these classes, not necessarily reconstruct
+the entire censored surface. We formalize the representation, map its novelty
+against 1332 related works, and provide a deterministic synthetic manipulation
+testbed. In the testbed, vision censors a hidden insertion channel and many
+irrelevant decorative bits. Dense entropy reduction spends probes on irrelevant
+geometry and reaches 10.2\% success at four probes; critical-cell entropy
+reaches 41.0\%; contact-equivalence reaches 100.0\% by asking balanced tactile
+sweeps over contact outcomes. The result is not a claim of real-robot
+deployment. It is a falsification of a common field assumption: that reducing
+uncertainty over visually hidden geometry is the same thing as reducing
+manipulation-relevant ambiguity.
+\end{abstract}
+
+\section{Introduction}
+
+Robotic touch is usually justified by what vision cannot see. A camera cannot
+observe the backside of an object during grasping, the interior boundary of a
+slot during insertion, or the true surface of transparent and reflective
+objects. Modern tactile work has therefore made substantial progress on
+sensors, contact geometry, object pose, visuo-tactile fusion, and shape
+reconstruction \citep{seminara2019active,tahoun2021visual,bauza2023tac2pose,comi2024touchsdf,huang2024normalflow,lee2025vitascope,gu2026touchanything}. The implicit bargain is:
+when vision censors geometry, touch should help recover that geometry.
+
+This bargain is often too strong for manipulation. If the robot needs to decide
+whether a planned insertion will collide or pass, then many hidden shapes are
+irrelevant. They differ as dense geometry, but not as contact outcomes for the
+next action. Conversely, two visually plausible shapes may look equally likely
+under a reconstruction prior while inducing different collision, slip, or stable
+pocket outcomes. The robot does not need the whole backside. It needs to know
+which contact outcome class it is in.
+
+We propose \emph{contact-equivalence reasoning}: maintain a partition over
+hidden geometries induced by the manipulation contacts that matter now, and
+choose tactile probes that split this partition. This changes the central
+mechanism from shape recovery to task-indexed equivalence. It is a small
+representational shift, but it changes which touches are valuable. A probe that
+reduces dense surface entropy can be useless for the current action, while a
+probe that leaves most geometry unknown can eliminate all decision ambiguity.
+
+The contribution is deliberately narrow:
+
+\begin{itemize}
+    \item We define contact-equivalence classes for visually censored geometry
+    and state the decision condition under which unresolved geometric ambiguity
+    is harmless.
+    \item We pressure-test the novelty boundary against a 1332-paper landscape
+    sweep, including 300 serious skim papers, 240 deep-read rows, and 100
+    hostile prior works saved with the repository.
+    \item We implement a deterministic synthetic manipulation environment that
+    isolates the failure mode. Contact-equivalence succeeds with four probes,
+    while dense entropy reduction keeps spending probes on irrelevant hidden
+    bits.
+\end{itemize}
+
+The paper does not introduce a new tactile sensor, a larger model, a benchmark
+as the main contribution, a learned foundation policy, or a real-robot system.
+Its purpose is to make one assumption visible and runnable: hidden geometry
+should not be represented at a granularity finer than the manipulation contacts
+that can distinguish it.
+
+\section{Related Work and Novelty Boundary}
+
+\paragraph{Tactile sensors and contact geometry.}
+Vision-based and force-based tactile sensors have improved the fidelity with
+which robots observe local contact. GelStereo-style calibration
+\citep{zhang2023gelstereo}, marker-based dense tactile reconstruction
+\citep{xue2023dense}, omnidirectional tactile cameras \citep{tippur2023gelsight360},
+large-area skins \citep{hu2024magnetic}, and deformable tactile arrays
+\citep{jiang2024stretchable} increase spatial coverage and measurement quality.
+These works make contact observable. They do not, by themselves, say which
+unknown parts of an object should remain unresolved because they are equivalent
+for the pending manipulation.
+
+\paragraph{Shape reconstruction from touch.}
+Touch has been used to infer object shape from sparse contacts, often with
+implicit or generative models \citep{tahoun2021visual,comi2024touchsdf,zhang2025diffusion,gu2026touchanything}. Active tactile reconstruction asks where to touch
+next to recover more of the object \citep{ottenhaus2018active,oikonomou2025proactive}.
+This literature directly threatens novelty if our claim is merely ``touch helps
+recover hidden shape.'' We therefore do not make that claim. The proposed
+mechanism can stop before full reconstruction: if all remaining geometries
+produce the same relevant contact outcome, they should be collapsed for the
+current decision.
+
+\paragraph{Pose, localization, and visuo-tactile fusion.}
+Tactile observations are also used for pose estimation, tracking, and in-hand
+state inference \citep{bauza2023tac2pose,kissoum2021simultaneous,huang2024normalflow,lee2025vitascope}. Other systems fuse vision and touch for contact-rich
+policies or multimodal representation learning \citep{du2022play,zhan2026forceflow}.
+These systems often assume that the latent object state is shared across
+modalities. Our setting instead treats vision as a censoring process that maps
+many contact-different geometries to the same visual observation. The problem is
+not only fusing two feature streams; it is representing the equivalence class
+left by a censored visual channel.
+
+\paragraph{Active haptic perception.}
+Active touch has a long history in robotics \citep{seminara2019active}. The
+closest family optimizes information gain or task-aware exploration
+\citep{ottenhaus2018active,jiang2022active}. Our difference is not that the
+robot acts to gather information. The difference is the random variable whose
+information matters. Dense object entropy, contact-cell entropy, and
+contact-outcome entropy can rank the same probe library very differently. The
+experiment in Section~\ref{sec:evidence} is designed to make that separation
+unavoidable.
+
+\section{Contact-Equivalence Reasoning}
+
+Let $g \in \Geom$ denote the hidden geometry of an object and $o = V(g)$ the
+visual observation after a censoring map $V$. The posterior after vision is
+$p(g \mid o)$. A manipulation action $a \in \Act$ interacts with geometry only
+through a contact-outcome map
+\begin{equation}
+    C_a : \Geom \rightarrow \Outcome,
+\end{equation}
+where $\Outcome$ may encode collision, free passage, slip, stable pocket,
+or another action-relevant contact event.
+
+\paragraph{Definition.}
+For a set of currently relevant actions $A \subseteq \Act$, two hidden
+geometries $g_i,g_j$ are contact-equivalent when
+\begin{equation}
+    g_i \sim_A g_j \quad \Longleftrightarrow \quad
+    C_a(g_i)=C_a(g_j) \;\; \text{for every } a \in A.
+\end{equation}
+The quotient $\Geom / {\sim_A}$ is the contact-equivalence partition. A tactile
+probe $t \in \Touch$ has observation model $p(z \mid g,t)$. Its value is not
+measured by how much it reduces entropy over $\Geom$, but by how much it reduces
+uncertainty over the quotient cells that change the decision.
+
+\paragraph{Decision condition.}
+Suppose the task loss for selecting action $a$ depends on geometry only through
+the contact outcome: $\loss(a,g)=\bar{\loss}(a,C_a(g))$. If all posterior mass
+after observations lies in one contact-equivalence class for the chosen action
+set $A$, then any two geometries in the support induce identical losses for
+actions in $A$. In that case, further reconstruction inside the class cannot
+improve the Bayes decision over $A$. This is a modest formal claim, but it is
+the key representational lever: uncertainty can remain high over dense geometry
+while decision ambiguity is zero.
+
+\paragraph{Probe objective.}
+For a belief $b(g)$ and probe $t$, the dense reconstruction objective is
+\begin{equation}
+    \Delta H_\mathrm{dense}(t)=H_b(G)-\mathbb{E}_{z}[H_{b(\cdot\mid z,t)}(G)].
+\end{equation}
+Contact-equivalence instead optimizes entropy over quotient cells $Q_A(G)$:
+\begin{equation}
+    \Delta H_\mathrm{contact}(t)=
+    H_b(Q_A(G))-\mathbb{E}_{z}[H_{b(\cdot\mid z,t)}(Q_A(G))].
+\end{equation}
+The two objectives coincide only when all dense geometric degrees of freedom are
+decision-relevant. Under visual occlusion that is rarely true: decorative,
+backside, or off-path geometry may dominate dense entropy while having no effect
+on the action being planned.
+
+\section{Controlled Evidence}
+\label{sec:evidence}
+
+We implement a minimal hidden-geometry manipulation world in
+\texttt{experiments/tactile\_occlusion\_sim.py}. Vision observes that an object
+contains one hidden insertion channel but censors which of 12 lanes is open. It
+also censors 64 decorative bits. The robot succeeds only if it selects the true
+hidden channel. Every method receives the same probe budget and the same probe
+library. The methods differ only in objective:
+
+\begin{itemize}
+    \item \textbf{Visual only} selects from the visual posterior without touch.
+    \item \textbf{Dense entropy} greedily reduces entropy of the full hidden
+    state, including decorative bits.
+    \item \textbf{Critical-cell entropy} probes single lane cells and reduces
+    uncertainty over the contact variable one lane at a time.
+    \item \textbf{Contact-equivalence} chooses tactile sweeps that split the
+    posterior over lane-outcome classes.
+\end{itemize}
+
+The environment is intentionally stylized. Its value is not realism; its value
+is that the hidden assumption is controlled. If generic hidden-geometry
+uncertainty were the right objective, dense entropy should not fail when given
+the same probe budget. If the equivalence partition matters, dense entropy can
+be provably distracted by irrelevant hidden variables.
+
+\begin{table}[t]
+\centering
+\caption{Success rate by tactile probe budget in the noiseless setting. Dense
+entropy reduces hidden geometry uncertainty but spends early probes on
+irrelevant decorative bits. Contact-equivalence splits the manipulation
+outcome class and reaches perfect success with four probes.}
+\label{tab:main}
+\input{../results/main_success_table.tex}
+\end{table}
+
+Table~\ref{tab:main} shows the main result over 2000 trials per setting with
+seed 505. With four probes, contact-equivalence reaches 100.0\% success.
+Critical-cell entropy reaches 41.0\% because it asks lane-is-$i$ questions one
+at a time. Dense entropy reaches only 10.2\%, near the visual-only baseline,
+because its first probes are consumed by high-entropy decorative variables that
+do not affect the contact decision.
+
+\begin{table}[t]
+\centering
+\caption{Success rate at budget four under binary probe noise. The mechanism is
+not noise-proof, but it degrades gracefully until high noise. Real tactile
+calibration remains outside the supported claim.}
+\label{tab:noise}
+\input{../results/noise_success_table.tex}
+\end{table}
+
+Table~\ref{tab:noise} adds binary observation noise to the tactile probes. At
+2\% noise, contact-equivalence still reaches 93.3\% success; at 5\%, 83.2\%;
+at 10\%, 68.3\%; and at 20\%, 45.2\%. This supports only a limited robustness
+claim. It does not establish performance with real tactile sensors, deformable
+objects, or high-dimensional 3D geometry.
+
+\section{What The Experiment Proves and Does Not Prove}
+
+The experiment demonstrates three statements. First, the same visual observation
+can correspond to many hidden geometries with different manipulation outcomes.
+Second, dense reconstruction uncertainty can be dominated by variables that are
+irrelevant to the current action. Third, a tactile action chosen to split
+contact-equivalence classes can require fewer probes than a dense
+reconstruction objective.
+
+The experiment does not prove that exact quotient maintenance is tractable in
+full 3D. It does not show that real tactile observations are clean enough to
+identify contact outcomes without calibration drift. It does not compare against
+large learned visuo-tactile policies on hardware. Those are real weaknesses.
+They are also the reason the claim is framed as a mechanism and representation
+claim rather than a deployment claim.
+
+\section{Reproducibility and Literature Audit}
+
+The repository contains all generated artifacts. The literature pipeline
+queries OpenAlex for tactile perception, visuo-tactile manipulation, hidden
+geometry, active haptics, contact sensing, and robot manipulation terms. It
+produced 1332 rows in \texttt{docs/related\_work\_matrix.csv}. The documents
+\texttt{docs/literature\_map.md}, \texttt{docs/hostile\_prior\_work.md},
+\texttt{docs/novelty\_boundary\_map.md}, and
+\texttt{docs/novelty\_decision.md} record the landscape sweep, the 300-paper
+serious skim, the 240-paper deep-read extraction protocol, the 100-paper
+hostile set, at least 20 hidden assumptions, rejected paper directions, and the
+chosen thesis.
+
+The experiment can be reproduced with:
+\begin{verbatim}
+python experiments/tactile_occlusion_sim.py
+\end{verbatim}
+When the cached outputs are complete, the script exits quickly and reuses them.
+Use \texttt{--force} to regenerate the full 2000-trial sweeps.
+
+\section{Conclusion}
+
+Tactile occlusion reasoning should not automatically mean reconstructing the
+occluded object. For manipulation, the useful latent variable is often a
+partition over contact outcomes. Contact-equivalence classes make this explicit:
+they preserve distinctions that change the action and collapse distinctions
+that do not. The controlled evidence shows a concrete failure mode for dense
+uncertainty reduction under visual censoring and a simple route around it. The
+next step is to approximate these partitions in real 3D manipulation systems,
+where the central challenge will be learning or computing contact-outcome maps
+without losing the decision-level discipline that makes the representation
+useful.
+
+\bibliographystyle{iclr2026_conference}
+\bibliography{references}
+
+\appendix
+
+\section{Generated Artifacts}
+
+The paper package includes:
+\begin{itemize}
+    \item \texttt{docs/related\_work\_matrix.csv}: 1332 literature rows.
+    \item \texttt{docs/literature\_map.md}: landscape sweep and deep-read map.
+    \item \texttt{docs/hostile\_prior\_work.md}: 100-paper hostile set.
+    \item \texttt{docs/novelty\_boundary\_map.md}: assumptions and boundaries.
+    \item \texttt{docs/claims.md}: supported, formal, and unsupported claims.
+    \item \texttt{docs/reviewer\_attacks.md}: likely review attacks.
+    \item \texttt{results/evidence\_summary.csv} and
+    \texttt{results/noise\_ablation.csv}: cached evidence.
+\end{itemize}
+
+\end{document}
