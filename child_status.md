@@ -1,10 +1,10 @@
 # Child Status: 05_tactile_occlusion_reasoning
 
 ## Current Stage
-Stage 6/7: PDF compiled and copied; preparing repo publication.
+Stage 8: complete; final audit exists and repo pushed.
 
 ## Last Completed Step
-- Built the anonymous ICLR-style paper and copied the final PDF to `C:/Users/wangz/Downloads/05.pdf`.
+- Created public GitHub repo, committed the complete paper package, and pushed `master`.
 
 ## Commands / Actions
 - `apply_patch` added `plan.md`.
@@ -34,6 +34,18 @@ Stage 6/7: PDF compiled and copied; preparing repo publication.
 - `pdflatex -interaction=nonstopmode -halt-on-error main.tex`
 - log scan for unresolved warnings
 - `Copy-Item -LiteralPath paper/main.pdf -Destination 'C:/Users/wangz/Downloads/05.pdf' -Force`
+- `Remove-Item -LiteralPath paper/main.pdf -Force` after copying, so the final PDF exists only at the required Downloads path.
+- `Get-Content` read GitHub plugin publish instructions.
+- `gh --version`
+- `gh auth status`
+- `git status -sb`
+- `git remote -v`
+- `gh repo create 05_tactile_occlusion_reasoning --public --source=. --remote=origin`
+- `apply_patch` updated `.gitignore` and added `README.md`.
+- `apply_patch` added `docs/final_audit.md`.
+- `git add -A`
+- `git commit -m "complete tactile occlusion reasoning paper"`
+- `git push -u origin master`
 - Web check confirmed the official ICLR 2026 Author Guide points to `iclr2026.zip`; local `paper/` already contains the ICLR 2026 style files.
 
 ## Current Facts
@@ -43,6 +55,10 @@ Stage 6/7: PDF compiled and copied; preparing repo publication.
 - Paper directory has ICLR 2026 style files, `main.tex`, and `references.bib`.
 - `paper/main.pdf` compiled to 193242 bytes.
 - `C:/Users/wangz/Downloads/05.pdf` exists and is 193242 bytes.
+- Local build copy `paper/main.pdf` was removed after copying to Downloads.
+- Public GitHub repo URL: `https://github.com/Jason-Wang313/05_tactile_occlusion_reasoning`.
+- Commit pushed: `c7bd46b` on `master`.
+- `docs/final_audit.md` exists and records `pending orchestrator copy` for the visible Desktop PDF.
 
 ## Failures
 - None in this attempt.
@@ -53,4 +69,4 @@ Stage 6/7: PDF compiled and copied; preparing repo publication.
 - Avoiding inline CSV parsing; will write a small helper script for citation/context extraction.
 
 ## Next Step
-- Add top-level `README.md`, commit, create/push public GitHub repo `05_tactile_occlusion_reasoning`, and write `docs/final_audit.md`.
+- Commit and push this final status-file update.
