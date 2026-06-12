@@ -6,7 +6,8 @@
 3. **This is just tactile shape reconstruction.** Response: the method can stop before reconstructing the full hidden geometry if the remaining ambiguity is contact-equivalent for the plan.
 4. **Simulation is too simple.** Response: true; the paper should be framed as a mechanism paper with a controlled falsification of a field assumption, not as a deployment claim.
 5. **Hostile prior already does visuotactile hidden-shape inference.** Response: concede that broad hidden-shape inference is covered; preserve only the narrower claim about task-indexed equivalence partitions.
-6. **Probe outcomes are idealized.** Response: add noise ablations and mark real-sensor robustness as future work.
+6. **Probe outcomes are idealized.** Response: the v2 noise ablation keeps contact-equivalence at 92.7% success for 2% binary noise, 82.8% for 5%, 68.1% for 10%, and 43.3% for 20%; real-sensor robustness remains unsupported.
+7. **Dense entropy is a straw baseline because it is distracted by irrelevant bits.** Response: v2 adds dense contact-only, which removes decorative probes and reaches 100.0% at budget 4, matching contact-equivalence. The paper now admits the exact boundary: the gap appears when dense hidden-state entropy includes manipulation-irrelevant variables.
 
 ## Closest Hostile Prior Work
 - TouchAnything: Diffusion-Guided 3D Reconstruction from Sparse Robot Touches (2026): shape reconstruction; visuotactile fusion; threatens using tactile contacts to reconstruct object shape.
