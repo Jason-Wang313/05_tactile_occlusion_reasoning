@@ -26,6 +26,14 @@ TRIALS = 2000
 BUDGETS = list(range(0, 9))
 NOISES = [0.0, 0.02, 0.05, 0.10, 0.20]
 SEED = 505
+METHODS = [
+    "visual_only",
+    "random",
+    "dense_entropy",
+    "dense_contact_only",
+    "critical_cell_entropy",
+    "contact_equivalence",
+]
 
 
 @dataclass
@@ -202,6 +210,12 @@ def choose_probe(method, belief, rng):
         return rng.choice(unused)
     if method == "dense_entropy":
         return max(unused, key=lambda p: (belief.expected_full_gain(p), -len(p.name)))
+    if method == "dense_contact_only":
+        # Boundary control: dense entropy is evaluated only over probes that can
+        # affect the pending contact. It should agree with contact-equivalence
+        # when irrelevant hidden geometry has already been ruled out.
+        contact_probes = [p for p in unused if p.kind in {"lane", "split"}]
+        return max(contact_probes, key=lambda p: (belief.expected_full_gain(p), p.kind == "split"))
     if method == "critical_cell_entropy":
         lane_probes = [p for p in unused if p.kind == "lane"]
         if not lane_probes:
@@ -250,6 +264,44 @@ def run_trial(method, budget, noise, rng):
     }
 
 
+def score_belief(belief, true_lane, contact_probes, decor_probes, rng):
+    action = select_action(belief, rng)
+    success = 1 if action == true_lane else 0
+    return {
+        "success": success,
+        "regret": 1 - success,
+        "posterior_contact_entropy": belief.h_contact(),
+        "posterior_full_entropy": belief.h_full(),
+        "contact_probes": contact_probes,
+        "decor_probes": decor_probes,
+    }
+
+
+def run_trajectory(method, max_budget, noise, rng):
+    true_lane = rng.randrange(LANES)
+    decor = [rng.randrange(2) == 1 for _ in range(DECOR_BITS)]
+    belief = Belief(noise=noise)
+    score_rng = random.Random(rng.randrange(2**32))
+    contact_probes = 0
+    decor_probes = 0
+    records = []
+
+    for budget in range(max_budget + 1):
+        records.append(score_belief(belief, true_lane, contact_probes, decor_probes, score_rng))
+        if budget == max_budget:
+            break
+        probe = choose_probe(method, belief, rng)
+        if probe is None:
+            continue
+        obs = observe(probe, true_lane, decor, rng, noise)
+        belief.update_with_observation(probe, obs, hypothetical=False)
+        if probe.kind == "decor":
+            decor_probes += 1
+        else:
+            contact_probes += 1
+    return records
+
+
 def summarize(values):
     if not values:
         return 0.0
@@ -258,15 +310,23 @@ def summarize(values):
 
 def run_all(trials=TRIALS):
     RESULTS.mkdir(exist_ok=True)
-    methods = ["visual_only", "random", "dense_entropy", "critical_cell_entropy", "contact_equivalence"]
     rows = []
     noise_rows = []
     rng = random.Random(SEED)
+    max_budget = max(BUDGETS)
+    main_runs = {(budget, method): [] for budget in BUDGETS for method in METHODS}
+
+    for method in METHODS:
+        for _ in range(trials):
+            trial_records = run_trajectory(method, max_budget, 0.0, rng)
+            for budget in BUDGETS:
+                main_runs[(budget, method)].append(trial_records[budget])
+        PROGRESS.write_text(f"completed_method={method}\n", encoding="utf-8")
 
     for budget in BUDGETS:
-        for method in methods:
-            trial_rows = [run_trial(method, budget, 0.0, rng) for _ in range(trials)]
-            row = {
+        for method in METHODS:
+            trial_rows = main_runs[(budget, method)]
+            rows.append({
                 "budget": budget,
                 "noise": 0.0,
                 "method": method,
@@ -276,12 +336,10 @@ def run_all(trials=TRIALS):
                 "posterior_full_entropy": summarize([r["posterior_full_entropy"] for r in trial_rows]),
                 "contact_probes": summarize([r["contact_probes"] for r in trial_rows]),
                 "decor_probes": summarize([r["decor_probes"] for r in trial_rows]),
-            }
-            rows.append(row)
-        PROGRESS.write_text(f"completed_budget={budget}\n", encoding="utf-8")
+            })
 
     for noise in NOISES:
-        for method in methods:
+        for method in METHODS:
             trial_rows = [run_trial(method, 4, noise, rng) for _ in range(trials)]
             noise_rows.append({
                 "budget": 4,
@@ -319,10 +377,11 @@ def pct(x):
 
 def write_main_table(rows):
     wanted_budgets = [0, 2, 4, 6, 8]
-    wanted_methods = ["visual_only", "dense_entropy", "critical_cell_entropy", "contact_equivalence"]
+    wanted_methods = ["visual_only", "dense_entropy", "dense_contact_only", "critical_cell_entropy", "contact_equivalence"]
     labels = {
         "visual_only": "Visual only",
         "dense_entropy": "Dense entropy",
+        "dense_contact_only": "Dense contact-only",
         "critical_cell_entropy": "Critical-cell entropy",
         "contact_equivalence": "Contact-equivalence",
     }
@@ -341,9 +400,10 @@ def write_main_table(rows):
 
 
 def write_noise_table(rows):
-    wanted_methods = ["dense_entropy", "critical_cell_entropy", "contact_equivalence"]
+    wanted_methods = ["dense_entropy", "dense_contact_only", "critical_cell_entropy", "contact_equivalence"]
     labels = {
         "dense_entropy": "Dense entropy",
+        "dense_contact_only": "Dense contact-only",
         "critical_cell_entropy": "Critical-cell entropy",
         "contact_equivalence": "Contact-equivalence",
     }
@@ -364,12 +424,13 @@ def write_noise_table(rows):
 def write_ascii_plot(rows):
     labels = {
         "visual_only": "visual",
-        "dense_entropy": "dense ",
-        "critical_cell_entropy": "cell  ",
-        "contact_equivalence": "equiv ",
+        "dense_entropy": "dense",
+        "dense_contact_only": "dctrl",
+        "critical_cell_entropy": "cell",
+        "contact_equivalence": "equiv",
     }
     lines = ["Success rate by probe budget (each # is about 5 percentage points)", ""]
-    for method in ["visual_only", "dense_entropy", "critical_cell_entropy", "contact_equivalence"]:
+    for method in ["visual_only", "dense_entropy", "dense_contact_only", "critical_cell_entropy", "contact_equivalence"]:
         lines.append(labels[method])
         for row in rows:
             if row["method"] == method:
@@ -382,6 +443,7 @@ def write_readme(rows, noise_rows):
     by_key = {(r["budget"], r["method"]): r for r in rows}
     ce4 = by_key[(4, "contact_equivalence")]["success_rate"]
     dense4 = by_key[(4, "dense_entropy")]["success_rate"]
+    dense_contact4 = by_key[(4, "dense_contact_only")]["success_rate"]
     cell4 = by_key[(4, "critical_cell_entropy")]["success_rate"]
     text = f"""# Runnable Evidence
 
@@ -390,10 +452,11 @@ The simulation is a controlled hidden-geometry task. Vision censors a hidden ins
 The key distinction is objective, not sensor access:
 
 - Dense entropy greedily reduces entropy of the full hidden geometry, so it spends early probes on irrelevant decorative bits.
+- Dense contact-only is a boundary control that removes the irrelevant decorative probes from the dense objective.
 - Critical-cell entropy probes lane cells, so it attacks the right variable but only by one lane at a time.
 - Contact-equivalence chooses tactile sweeps that split the manipulation contact outcome class.
 
-At budget 4 with noiseless probes, contact-equivalence reaches {pct(ce4)}% success, dense entropy reaches {pct(dense4)}%, and critical-cell entropy reaches {pct(cell4)}%.
+At budget 4 with noiseless probes, contact-equivalence reaches {pct(ce4)}% success, dense entropy reaches {pct(dense4)}%, dense contact-only reaches {pct(dense_contact4)}%, and critical-cell entropy reaches {pct(cell4)}%. The contact-only control marks the boundary: once irrelevant hidden geometry is removed from the dense state, dense entropy and contact-equivalence agree.
 
 Run:
 
@@ -417,10 +480,10 @@ def outputs_complete():
         if not path.exists() or path.stat().st_size == 0:
             return False
     with (RESULTS / "evidence_summary.csv").open("r", encoding="utf-8", newline="") as f:
-        if sum(1 for _ in csv.DictReader(f)) < len(BUDGETS) * 5:
+        if sum(1 for _ in csv.DictReader(f)) < len(BUDGETS) * len(METHODS):
             return False
     with (RESULTS / "noise_ablation.csv").open("r", encoding="utf-8", newline="") as f:
-        if sum(1 for _ in csv.DictReader(f)) < len(NOISES) * 5:
+        if sum(1 for _ in csv.DictReader(f)) < len(NOISES) * len(METHODS):
             return False
     return True
 

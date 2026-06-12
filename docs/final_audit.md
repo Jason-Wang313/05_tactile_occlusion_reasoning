@@ -28,7 +28,7 @@ The repository contains `docs/related_work_matrix.csv` with 1332 entries, `docs/
 A modest decision-equivalence condition is stated in the paper: if task loss depends on hidden geometry only through the relevant contact-outcome map, then unresolved ambiguity inside one contact-equivalence class cannot change the Bayes decision over the current action set. This is a formal observation, not a full theorem about scalable 3D inference.
 
 ## 8. Strongest Evidence
-The runnable synthetic manipulation task isolates visual censoring of a hidden insertion channel among 12 lanes plus 64 irrelevant hidden decorative bits. At four noiseless tactile probes, contact-equivalence reaches 100.0% success, dense entropy reaches 10.2%, and critical-cell entropy reaches 41.0%. At four probes with 5% binary tactile noise, contact-equivalence reaches 83.2%.
+The runnable synthetic manipulation task isolates visual censoring of a hidden insertion channel among 12 lanes plus 64 irrelevant hidden decorative bits. At four noiseless tactile probes, contact-equivalence reaches 100.0% success, dense entropy reaches 8.6%, critical-cell entropy reaches 41.5%, and dense contact-only reaches 100.0%. At four probes with 5% binary tactile noise, contact-equivalence reaches 82.8%. The dense contact-only control is the strongest v2 hardening result because it turns the likely straw-baseline attack into an explicit boundary condition.
 
 ## 9. Biggest Weaknesses
 - Evidence is synthetic and intentionally stylized.
@@ -36,9 +36,10 @@ The runnable synthetic manipulation task isolates visual censoring of a hidden i
 - Exact quotient maintenance is not shown to scale to high-dimensional 3D objects.
 - Deformable, articulated, and calibration-drifting contacts are outside the supported claim.
 - Learned visuo-tactile foundation models are discussed as hostile prior work but not empirically compared.
+- The advantage disappears against an oracle that has already filtered the hidden state to contact-relevant variables.
 
 ## 10. Paper-Readiness Judgment
-Workshop. The mechanism is crisp and the evidence supports the assumption break, but a main-conference submission would need stronger real-robot or realistic 3D evidence.
+Workshop-only for immediate submission; strong-revise for a main-conference target. The mechanism is crisp and the v2 control makes the claim more defensible, but a main-conference submission would need stronger real-robot or realistic 3D evidence.
 
 ## 11. Exact Downloads PDF Path
 `C:/Users/wangz/Downloads/05.pdf`
@@ -48,3 +49,16 @@ Workshop. The mechanism is crisp and the evidence supports the assumption break,
 
 ## 13. Desktop Copy Status
 pending orchestrator copy
+
+## Orchestrator Desktop Copy
+
+Checked: 2026-06-11 02:27:05 +01:00
+Downloads PDF: C:/Users/wangz/Downloads/05.pdf
+Result: copy script exit 0 log C:\Users\wangz\robotics_60_paper_batch\logs\desktop_copy_05_20260611_022701.log
+
+## Submission-Hardening v2
+
+Checked: 2026-06-12 20:51:41 +01:00
+Terminal decision: workshop-only
+Key change: added dense contact-only boundary control and regenerated full 2000-trial evidence.
+Canonical PDF target: C:/Users/wangz/Downloads/05.pdf, 195219 bytes

@@ -12,6 +12,8 @@ Robotic manipulation under visual occlusion should reason over contact-equivalen
 - `paper/references.bib`: sanitized bibliography.
 - `experiments/tactile_occlusion_sim.py`: runnable controlled evidence.
 - `results/`: cached tables and CSV outputs from the simulation.
+- `docs/submission_readiness_decision.md`: v2 submission decision.
+- `docs/submission_attack_log.md`: hostile submission-hardening audit.
 - `docs/related_work_matrix.csv`: 1332-entry literature matrix.
 - `docs/literature_map.md`: landscape, skim, and deep-read summary.
 - `docs/hostile_prior_work.md`: 100-paper hostile prior-work set.
@@ -25,6 +27,16 @@ python experiments/tactile_occlusion_sim.py
 ```
 
 The script reuses complete cached outputs unless run with `--force`.
+
+## Submission-Hardening v2
+
+The v2 pass adds a dense contact-only boundary control. At budget 4 over 2000
+trials, full dense entropy reaches 8.6% success after spending all four probes
+on irrelevant decorative bits; critical-cell entropy reaches 41.5%;
+contact-equivalence reaches 100.0%; and dense contact-only also reaches 100.0%.
+The supported claim is therefore narrow: contact-equivalence helps when visually
+hidden state contains manipulation-irrelevant degrees of freedom, not when an
+oracle has already filtered the state to contact-relevant variables.
 
 ## Build Paper
 

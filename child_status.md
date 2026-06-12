@@ -53,7 +53,7 @@ Stage 8: complete; final audit exists and repo pushed.
 
 ## Current Facts
 - `docs/related_work_matrix.csv` has 1333 lines, i.e. 1332 entries plus header.
-- Required docs exist except `docs/final_audit.md`.
+- Required docs exist, including `docs/final_audit.md`.
 - Evidence outputs exist and report contact-equivalence success of 100.0% at budget 4 versus 10.2% dense entropy and 41.0% critical-cell entropy.
 - Paper directory has ICLR 2026 style files, `main.tex`, and `references.bib`.
 - `paper/main.pdf` compiled to 193242 bytes.
@@ -73,3 +73,16 @@ Stage 8: complete; final audit exists and repo pushed.
 
 ## Next Step
 - None. Final verification remains to be reported in the assistant response.
+
+Exit code: 0
+End time: 2026-06-11 02:27:01 +01:00
+PDF exists: True
+
+## Submission Hardening v2
+
+- Completed: 2026-06-12 20:51:41 +01:00
+- Terminal decision: workshop-only
+- Canonical PDF target: `C:/Users/wangz/Downloads/05.pdf` (195219 bytes)
+- Key experiment change: added dense contact-only boundary control and regenerated full 2000-trial outputs.
+- Key result: at budget 4, contact-equivalence reaches 100.0%, dense contact-only reaches 100.0%, critical-cell entropy reaches 41.5%, and full dense entropy reaches 8.6%.
+- Claim narrowed: the mechanism is useful when visually hidden state contains manipulation-irrelevant variables; it is not an advantage over an oracle that already filters to contact-relevant state.

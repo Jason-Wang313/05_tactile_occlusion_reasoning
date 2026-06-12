@@ -23,6 +23,10 @@
 
 \maketitle
 
+\begin{center}
+{\small Submission-hardening version: v2 (2026-06-12).}
+\end{center}
+
 \begin{abstract}
 Robots often manipulate objects whose decisive geometry is hidden from vision:
 the back edge of a handle, the mouth of an insertion channel, the lip of a
@@ -36,13 +40,15 @@ outcome. Tactile probes should split these classes, not necessarily reconstruct
 the entire censored surface. We formalize the representation, map its novelty
 against 1332 related works, and provide a deterministic synthetic manipulation
 testbed. In the testbed, vision censors a hidden insertion channel and many
-irrelevant decorative bits. Dense entropy reduction spends probes on irrelevant
-geometry and reaches 10.2\% success at four probes; critical-cell entropy
-reaches 41.0\%; contact-equivalence reaches 100.0\% by asking balanced tactile
-sweeps over contact outcomes. The result is not a claim of real-robot
-deployment. It is a falsification of a common field assumption: that reducing
-uncertainty over visually hidden geometry is the same thing as reducing
-manipulation-relevant ambiguity.
+irrelevant decorative bits. Dense entropy reduction spends all four probes on
+irrelevant geometry and reaches 8.6\% success; critical-cell entropy reaches
+41.5\%; contact-equivalence reaches 100.0\% by asking balanced tactile sweeps
+over contact outcomes. A dense contact-only control also reaches 100.0\%,
+narrowing the claim: the advantage appears when the hidden state contains
+irrelevant geometry that dense reconstruction still values. The result is not a
+claim of real-robot deployment. It is a falsification of a common field
+assumption: that reducing uncertainty over all visually hidden geometry is the
+same thing as reducing manipulation-relevant ambiguity.
 \end{abstract}
 
 \section{Introduction}
@@ -198,6 +204,9 @@ library. The methods differ only in objective:
     \item \textbf{Visual only} selects from the visual posterior without touch.
     \item \textbf{Dense entropy} greedily reduces entropy of the full hidden
     state, including decorative bits.
+    \item \textbf{Dense contact-only} is a boundary control that removes
+    decorative probes from the candidate set while still ranking the remaining
+    probes by dense entropy reduction.
     \item \textbf{Critical-cell entropy} probes single lane cells and reduces
     uncertainty over the contact variable one lane at a time.
     \item \textbf{Contact-equivalence} chooses tactile sweeps that split the
@@ -214,18 +223,23 @@ be provably distracted by irrelevant hidden variables.
 \centering
 \caption{Success rate by tactile probe budget in the noiseless setting. Dense
 entropy reduces hidden geometry uncertainty but spends early probes on
-irrelevant decorative bits. Contact-equivalence splits the manipulation
-outcome class and reaches perfect success with four probes.}
+irrelevant decorative bits. Dense contact-only is a boundary control showing
+that once irrelevant hidden variables are removed, the dense objective and
+contact-equivalence agree.}
 \label{tab:main}
 \input{../results/main_success_table.tex}
 \end{table}
 
 Table~\ref{tab:main} shows the main result over 2000 trials per setting with
 seed 505. With four probes, contact-equivalence reaches 100.0\% success.
-Critical-cell entropy reaches 41.0\% because it asks lane-is-$i$ questions one
-at a time. Dense entropy reaches only 10.2\%, near the visual-only baseline,
-because its first probes are consumed by high-entropy decorative variables that
-do not affect the contact decision.
+Critical-cell entropy reaches 41.5\% because it asks lane-is-$i$ questions one
+at a time. Dense entropy reaches only 8.6\%, near the visual-only baseline,
+because its first four probes are consumed by high-entropy decorative variables
+that do not affect the contact decision. Dense contact-only reaches 100.0\%,
+matching contact-equivalence. This control is important: the claim is not that
+contact-equivalence always beats entropy, but that dense hidden-state entropy is
+the wrong objective when visually hidden state contains manipulation-irrelevant
+degrees of freedom.
 
 \begin{table}[t]
 \centering
@@ -237,10 +251,11 @@ calibration remains outside the supported claim.}
 \end{table}
 
 Table~\ref{tab:noise} adds binary observation noise to the tactile probes. At
-2\% noise, contact-equivalence still reaches 93.3\% success; at 5\%, 83.2\%;
-at 10\%, 68.3\%; and at 20\%, 45.2\%. This supports only a limited robustness
-claim. It does not establish performance with real tactile sensors, deformable
-objects, or high-dimensional 3D geometry.
+2\% noise, contact-equivalence still reaches 92.7\% success; at 5\%, 82.8\%;
+at 10\%, 68.1\%; and at 20\%, 43.3\%. Dense contact-only is nearly identical
+under the same noise levels. This supports only a limited robustness claim. It
+does not establish performance with real tactile sensors, deformable objects,
+or high-dimensional 3D geometry.
 
 \section{What The Experiment Proves and Does Not Prove}
 
@@ -249,14 +264,19 @@ can correspond to many hidden geometries with different manipulation outcomes.
 Second, dense reconstruction uncertainty can be dominated by variables that are
 irrelevant to the current action. Third, a tactile action chosen to split
 contact-equivalence classes can require fewer probes than a dense
-reconstruction objective.
+reconstruction objective. The dense contact-only control adds the boundary
+condition: if a prior system has already filtered the hidden state down to
+contact-relevant variables, dense entropy and contact-equivalence can coincide.
 
 The experiment does not prove that exact quotient maintenance is tractable in
 full 3D. It does not show that real tactile observations are clean enough to
 identify contact outcomes without calibration drift. It does not compare against
 large learned visuo-tactile policies on hardware. Those are real weaknesses.
 They are also the reason the claim is framed as a mechanism and representation
-claim rather than a deployment claim.
+claim rather than a deployment claim. The paper also does not claim an
+advantage over an oracle that already knows which hidden variables are
+contact-relevant; the new control shows that such an oracle removes the
+experimental gap.
 
 \section{Reproducibility and Literature Audit}
 
