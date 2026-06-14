@@ -1,14 +1,27 @@
 # Submission Attack Log
 
-## Paper 05 v2
+## Paper 05 v3
 
-- Attack: The dense-entropy baseline is straw because it is forced to value irrelevant decorative geometry.
-  - Response: Added dense contact-only control. It removes decorative probes and reaches 100.0% success at budget 4, matching contact-equivalence.
-  - Residual risk: This narrows the claim to settings where irrelevant hidden variables remain in the state.
-- Attack: The synthetic world is too simple and noiseless.
-  - Response: Existing noise stress was regenerated with the v2 method set. Contact-equivalence reaches 92.7% at 2% binary noise, 82.8% at 5%, 68.1% at 10%, and 43.3% at 20%.
-  - Residual risk: Binary observation noise is not a calibrated tactile sensor model.
+- Attack: Dense entropy is a straw baseline because it is forced to value irrelevant decorative geometry.
+  - Response: The final paper agrees with this boundary and makes it central. Dense contact-only reaches 1.000 at budget four, matching contact-equivalence.
+  - Residual risk: The claim applies only when irrelevant hidden variables remain in the state or probe library.
+
+- Attack: The effect may be an artifact of one lane count or one decorative-bit count.
+  - Response: The final suite includes decorative-bit scaling and lane/contact-class scaling.
+  - Residual risk: The task family is still synthetic and discrete.
+
+- Attack: The method only works in noiseless touch.
+  - Response: The final noise taxonomy includes symmetric, false-positive, false-negative, and drift-like noise. Contact-equivalence is strong at low/moderate noise and falls to 0.442 at 20% symmetric noise.
+  - Residual risk: Binary noise is not a calibrated real tactile model.
+
 - Attack: Exact quotient maintenance may not scale.
-  - Response: Paper keeps this as an explicit limitation and does not claim scalable 3D inference.
+  - Response: The paper includes sampled-equivalence probing and states exact 3D quotient maintenance as unsupported.
+  - Residual risk: Approximate quotienting is still tested only in the lane simulator.
+
+- Attack: The probe library does the real work.
+  - Response: Probe-library ablations show the dependency. Cells-only/no-sweeps falls to 0.433, while mixed probes reach 1.000.
+  - Residual risk: Real safe probes may not split contact classes as cleanly.
+
 - Attack: Recent visuo-tactile reconstruction work already solves hidden geometry.
-  - Response: The claim is restricted to task-indexed equivalence partitions, not general hidden-shape reconstruction.
+  - Response: The manuscript frames the contribution as task-indexed contact equivalence, not general hidden-shape reconstruction.
+  - Residual risk: A learned reconstruction system with a manipulation-value filter could erase the gap.
