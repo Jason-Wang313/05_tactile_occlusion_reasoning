@@ -1,18 +1,21 @@
-# Submission Readiness Decision
+# Submission Readiness Judgment
 
-## Decision
+## Judgment
 
-Workshop-only.
+Final full-scale synthetic mechanism paper, ready under the batch standard.
 
 ## Rationale
 
-The v2 paper is stronger because it adds the dense contact-only boundary control. The result is now more honest and harder to dismiss: contact-equivalence wins over full dense entropy only when the hidden state contains manipulation-irrelevant variables, and it agrees with dense entropy once those variables are removed.
+The final version is no longer the short v2 artifact. It is a 27-page manuscript backed by seven full-scale suites, 10,120 compact metric rows, and 242,880 evaluated trials counted across rows. It includes strong positives, boundary controls, negative controls, noise stress, probe-library ablations, prior stress, contact-class scaling, and reproducibility details.
 
-The manuscript is not submit-ready for a main conference because the evidence remains a stylized synthetic task with idealized binary tactile observations and no 3D or hardware validation.
+The paper's claim is intentionally narrow and defensible: contact-equivalence is useful when visually hidden state contains manipulation-irrelevant degrees of freedom. The manuscript explicitly shows that dense entropy matches contact-equivalence when irrelevant variables are removed or when an oracle contact-only library is provided.
 
-## Required Before Main-Conference Submission
+## Remaining Risks For External Review
 
-- Realistic 3D hidden-contact benchmark or hardware experiment.
-- Approximate quotient inference method for non-enumerated geometry.
-- Comparison against learned visuo-tactile policies or reconstruction-driven planners.
-- More realistic tactile noise and calibration drift model.
+- No real tactile hardware validation.
+- No realistic 3D physics benchmark.
+- No learned policy comparison.
+- Exact quotient maintenance is not shown for high-dimensional shape representations.
+- Binary tactile-noise models are still idealized.
+
+These risks should be presented as limitations, not as reasons to discard the final synthetic mechanism contribution.

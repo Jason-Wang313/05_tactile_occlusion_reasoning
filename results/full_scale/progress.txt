@@ -1,0 +1,66 @@
+full-scale tactile suite=main seed_scale=10 trials=24
+main seed=0 complete
+main seed=1 complete
+main seed=2 complete
+main seed=3 complete
+main seed=4 complete
+main seed=5 complete
+main seed=6 complete
+main seed=7 complete
+main seed=8 complete
+main seed=9 complete
+full-scale tactile suite=decor seed_scale=10 trials=24
+decor bits=0 complete
+decor bits=16 complete
+decor bits=64 complete
+decor bits=128 complete
+decor bits=256 complete
+full-scale tactile suite=lanes seed_scale=10 trials=24
+lanes=8 complete
+lanes=12 complete
+lanes=16 complete
+lanes=24 complete
+lanes=32 complete
+full-scale tactile suite=noise seed_scale=10 trials=24
+noise symmetric rate=0.0 complete
+noise symmetric rate=0.02 complete
+noise symmetric rate=0.05 complete
+noise symmetric rate=0.1 complete
+noise symmetric rate=0.2 complete
+noise symmetric rate=0.3 complete
+noise false_positive rate=0.0 complete
+noise false_positive rate=0.02 complete
+noise false_positive rate=0.05 complete
+noise false_positive rate=0.1 complete
+noise false_positive rate=0.2 complete
+noise false_positive rate=0.3 complete
+noise false_negative rate=0.0 complete
+noise false_negative rate=0.02 complete
+noise false_negative rate=0.05 complete
+noise false_negative rate=0.1 complete
+noise false_negative rate=0.2 complete
+noise false_negative rate=0.3 complete
+noise drift rate=0.0 complete
+noise drift rate=0.02 complete
+noise drift rate=0.05 complete
+noise drift rate=0.1 complete
+noise drift rate=0.2 complete
+noise drift rate=0.3 complete
+full-scale tactile suite=prior seed_scale=10 trials=24
+prior uniform complete
+prior skewed complete
+prior bimodal complete
+prior visual_narrow complete
+full-scale tactile suite=library seed_scale=10 trials=24
+library mixed complete
+library cells_only complete
+library sweeps_only complete
+library balanced_only complete
+library contact_only complete
+full-scale tactile suite=negative seed_scale=10 trials=24
+negative no_decor complete
+negative oracle_filtered complete
+negative decor_dominates complete
+negative cells_only_no_sweeps complete
+full-scale tactile suite=summarize seed_scale=10 trials=240
+summarize complete

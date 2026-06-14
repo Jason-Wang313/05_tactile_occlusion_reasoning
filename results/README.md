@@ -1,23 +1,57 @@
 # Runnable Evidence
 
-The simulation is a controlled hidden-geometry task. Vision censors a hidden insertion channel among 12 possible lanes and also censors 64 irrelevant decorative bits. The manipulation succeeds only if the robot chooses the true hidden channel. All methods receive the same probe budget and probe library.
+The final evidence is a controlled hidden-geometry task. Vision censors a hidden contact lane and also censors decorative hidden variables that are informative to touch but irrelevant to the current manipulation outcome. The manipulation succeeds only if the robot resolves the contact class needed by the pending action.
 
-The key distinction is objective, not sensor access:
-
-- Dense entropy greedily reduces entropy of the full hidden geometry, so it spends early probes on irrelevant decorative bits.
-- Dense contact-only is a boundary control that removes the irrelevant decorative probes from the dense objective.
-- Critical-cell entropy probes lane cells, so it attacks the right variable but only by one lane at a time.
-- Contact-equivalence chooses tactile sweeps that split the manipulation contact outcome class.
-
-At budget 4 with noiseless probes, contact-equivalence reaches 100.0% success, dense entropy reaches 8.6%, dense contact-only reaches 100.0%, and critical-cell entropy reaches 41.5%. The contact-only control marks the boundary: once irrelevant hidden geometry is removed from the dense state, dense entropy and contact-equivalence agree.
+## Final Full-Scale Suite
 
 Run:
+
+```powershell
+python experiments/run_full_scale_tactile_occlusion.py --suite main --seed-scale 10 --trials 24 --fresh
+python experiments/run_full_scale_tactile_occlusion.py --suite decor --seed-scale 10 --trials 24
+python experiments/run_full_scale_tactile_occlusion.py --suite lanes --seed-scale 10 --trials 24
+python experiments/run_full_scale_tactile_occlusion.py --suite noise --seed-scale 10 --trials 24
+python experiments/run_full_scale_tactile_occlusion.py --suite prior --seed-scale 10 --trials 24
+python experiments/run_full_scale_tactile_occlusion.py --suite library --seed-scale 10 --trials 24
+python experiments/run_full_scale_tactile_occlusion.py --suite negative --seed-scale 10 --trials 24
+python experiments/run_full_scale_tactile_occlusion.py --suite summarize --seed-scale 10
+```
+
+Outputs:
+
+- `results/full_scale/main_budget.csv`
+- `results/full_scale/decor_scaling.csv`
+- `results/full_scale/lane_scaling.csv`
+- `results/full_scale/noise_taxonomy.csv`
+- `results/full_scale/prior_stress.csv`
+- `results/full_scale/probe_library.csv`
+- `results/full_scale/negative_controls.csv`
+- `results/full_scale/full_scale_summary.json`
+- `results/full_scale/figures/*.png`
+
+## Scale
+
+- Compact metric rows: 10,120
+- Evaluated trials counted across rows: 242,880
+
+## Main Budget-4 Readout
+
+- Dense entropy: 0.083 success.
+- Dense contact-only: 1.000 success.
+- Critical-cell entropy: 0.425 success.
+- Contact-equivalence: 1.000 success.
+- Expected-regret probing: 0.825 success.
+- Sampled equivalence: 0.967 success.
+
+## Original Short-Run Evidence
+
+The earlier v2 script remains available:
 
 ```powershell
 python experiments/tactile_occlusion_sim.py
 ```
 
-Outputs:
+Its cached outputs are retained for continuity:
 
 - `results/evidence_summary.csv`
 - `results/noise_ablation.csv`

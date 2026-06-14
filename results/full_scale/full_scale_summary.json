@@ -1,0 +1,30 @@
+{
+  "seed_scale": 10,
+  "csv_files": [
+    "decor_scaling.csv",
+    "lane_scaling.csv",
+    "main_budget.csv",
+    "negative_controls.csv",
+    "noise_taxonomy.csv",
+    "prior_stress.csv",
+    "probe_library.csv"
+  ],
+  "figure_files": [
+    "main_success_budget.png",
+    "probe_allocation.png",
+    "decor_scaling.png",
+    "lane_scaling.png",
+    "noise_taxonomy.png",
+    "prior_stress.png",
+    "probe_library.png",
+    "negative_controls.png"
+  ],
+  "compact_metric_rows": 10120,
+  "evaluated_trials_counting_rows": 242880,
+  "main_b4_dense_entropy": 0.08333333333333329,
+  "main_b4_dense_contact_only": 1.0,
+  "main_b4_critical_cell_entropy": 0.425,
+  "main_b4_contact_equivalence": 1.0,
+  "main_b4_expected_regret": 0.825,
+  "main_b4_sampled_equivalence": 0.9666666666666666
+}
