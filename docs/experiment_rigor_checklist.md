@@ -13,6 +13,8 @@
 - [x] Negative controls include no-decor, oracle-filtered, decor-dominant, and cells-only/no-sweeps cases.
 - [x] Boundary control preserved: dense contact-only reaches 1.000 when irrelevant probes are filtered.
 - [x] Final manuscript compiled to 27 pages and verified before copying to the canonical PDF path.
+- [x] Final canonical PDF rebuilt with VLA-style boxed links and verified at 27 pages.
+- [x] Rendered all pages with final link annotations and confirmed boxes are crisp and aligned.
 - [ ] Real tactile sensor validation.
 - [ ] Realistic 3D geometry or physics validation.
 - [ ] Learned policy or learned reconstruction planner comparison.
