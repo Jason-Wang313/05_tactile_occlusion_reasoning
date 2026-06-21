@@ -11,8 +11,16 @@ Robotic manipulation under visual occlusion should reason over contact-equivalen
 - Canonical PDF: `C:/Users/wangz/Downloads/05.pdf`
 - Verified page count: 27 pages
 - Verified PDF size: 1,040,865 bytes
+- Verified SHA256: `BF717DB37975A5CC91C024F8936DCFE78C55C32DC6605D07BFDCBE9E6D0E570E`
 - Full-scale compact metric rows: 10,120
 - Evaluated trials counted across rows: 242,880
+
+VLA-style boxed-link verification:
+
+- Link annotations: 96 total on pages `[(1, 15), (2, 35), (3, 8), (4, 4), (6, 2), (7, 2), (10, 6), (11, 9), (12, 9), (13, 6)]`.
+- Annotation colors: green = 87, red = 9, cyan = 0.
+- Border widths: `(0, 0, 1)` for all link annotations.
+- Visual audit: rendered pages 1, 2, 3, 4, 6, 7, 10, 11, 12, and 13; green citation/URL boxes and red internal-reference boxes are crisp and aligned.
 
 The final manuscript is synthetic but substantially expanded beyond the earlier short version. It includes main budget curves, decorative-variable scaling, contact-class scaling, tactile noise taxonomy, prior stress, probe-library ablations, boundary controls, approximate quotient probing, formal notes, implementation guidance, hardware-validation protocol, and failure-mode analysis.
 

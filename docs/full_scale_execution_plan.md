@@ -148,3 +148,19 @@ Before Paper 05 can be considered final:
 10. Local build PDF is removed after the verified Downloads copy exists.
 11. Repository is committed and pushed.
 12. Only then may work proceed to Paper 06.
+
+## VLA-Style Link Hardening Addendum
+
+Checked: 2026-06-21
+
+Action: Added explicit VLA-style `\hypersetup` policy after the existing `hyperref` import, rebuilt with `pdflatex`, `bibtex`, `pdflatex`, `pdflatex`, copied the final PDF to Downloads, and removed local `paper/main.pdf`.
+
+Decision: Final link styling matches the visible VLA-v4 role model; this pass replaced cyan internal-link boxes with the red/green boxed-link policy.
+
+Downloads PDF: `C:/Users/wangz/Downloads/05.pdf` (27 pages, 1,040,865 bytes, SHA256 `BF717DB37975A5CC91C024F8936DCFE78C55C32DC6605D07BFDCBE9E6D0E570E`)
+
+Link audit: 96 annotations on pages `[(1, 15), (2, 35), (3, 8), (4, 4), (6, 2), (7, 2), (10, 6), (11, 9), (12, 9), (13, 6)]`; green = 87, red = 9, cyan = 0; all borders `(0, 0, 1)`.
+
+Visual audit: rendered pages 1, 2, 3, 4, 6, 7, 10, 11, 12, and 13; boxes are crisp and aligned.
+
+Filename policy: no duplicate `C:/Users/wangz/Downloads/5.pdf` created.
